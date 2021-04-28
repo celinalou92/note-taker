@@ -6,7 +6,7 @@ const path = require('path')
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const { noteData } = require('./db/db.json');
+const fs = require('fs');
 
 // -------------------------------- Middleware -------------------------------- //
 // public folder readily available no request needed
@@ -26,6 +26,7 @@ function filterByQuery(query, notesArray) {
     if(query.title) {
         filteredResults = filteredResults.filter(note => note.title === query.title);
     };
+    // TODO: add another if statement to query by id?
     return filteredResults;
 }
 
@@ -35,41 +36,59 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname,'./public/notes.html'));
 });
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname,'./public/index.html'));
-});
+
 
 
 // ---------------------------------- API Routes ---------------------------------- //
-app.get('/api/notes', (req, res) => {
-    let results = note;
-    if(req.query) {
-        results = filterByQuery(req.query, results);
-    }
-    res.json(results);
-})
 
 
 app.get('/api/notes', (req, res) => {
     // read db.json file and return saved notes as JSON
-
+    fs.readFile(path.join(__dirname,'./db/db.json'), (err, data) => {
+        if(err) {
+            res.status(500);
+        }
+        res.json(JSON.parse(data));
+    });
 });
 
 app.post('/api/notes', (req, res) => {
     // receive a new note to save on the req body give it unique id
-
+    let id = Math.floor(Math.random() * 10000);
+    let note  = req.body;
+    note.id = id;
     // add it to db.json
+    fs.readFile(path.join(__dirname,'./db/db.json'), (err, data) => {
+        if(err){
+            res.status(500);
+        }
+        let savedNotes = JSON.parse(data);
+        savedNotes.push(note);
 
-    // return the new note to client
-    
+        fs.writeFile(path.join(__dirname,'./db/db.json'), JSON.stringify(savedNotes), (err) => {
+            if(err) {
+                res.status(500);
+            }
+            // return the new note to client
+            res.json(note);
+        })
+    });
 })
 
 
 
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname,'./public/index.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`API server now on port 3001!`);
-  });
+});
 
+
+// fix id random number 
+// bonus delete
 
 
 // GIVEN a note-taking application
