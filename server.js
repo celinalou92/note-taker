@@ -30,6 +30,10 @@ function filterByQuery(query, notesArray) {
     return filteredResults;
 }
 
+
+
+
+
 // ---------------------------------- HTML Routes ---------------------------------- //
 
 app.get('/notes', (req, res) => {
@@ -75,7 +79,31 @@ app.post('/api/notes', (req, res) => {
     });
 })
 
+app.delete('/api/notes/:id', (req,res) => {
+    let id = req.params;
+    fs.readFile(path.join(__dirname,'./db/db.json'), (err, data) => {
+        if(err) {
+            console.log(`error here`)
+            res.status(500);
+            
+        }
+        let savedNotes = JSON.parse(data);
+        let editedNotes = savedNotes.filter( (data) => {
+            console.log(`NOTE ${data}`)
+            return data.id !== id;
+        });
+// ------ not working!! ------ //
+        fs.writeFile(path.join(__dirname,'./db/db.json'), JSON.stringify(editedNotes), (err) => {
+            if(err) {
+                res.status(500);
+            }
+            console.log(editedNotes)
+            res.json(`end`);
+        })
+    })
+})
 
+// ---------------------------------- END API Routes ---------------------------------- //
 
 
 app.get('*', (req, res) => {
@@ -87,8 +115,6 @@ app.listen(PORT, () => {
 });
 
 
-// fix id random number 
-// bonus delete
 
 
 // GIVEN a note-taking application
