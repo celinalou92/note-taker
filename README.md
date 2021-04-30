@@ -11,11 +11,13 @@
   * [Questions](#questions)
   
   ## Installation 
-* npm init --y
-* npm install express
+    * npm init --y
+    * npm install express
 
   ## Usage
   This project can be used to take notes/reminders
+
+  * link to deployed site: https://note-taker-24apr21.herokuapp.com/
   
   ## Contributing
   N/A
